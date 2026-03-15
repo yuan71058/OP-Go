@@ -1,4 +1,4 @@
-module github.com/yourusername/gop
+module github.com/yuan71058/OP-Go
 
 go 1.21
 
