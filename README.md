@@ -1,37 +1,59 @@
-# gop - OP 插件 Go 语言封装库
+# 🎮 OP-Go - OP 插件 Go 语言封装库
 
-[![Go Version](https://img.shields.io/badge/go-%3E%3D1.21-blue)](https://golang.org)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+<p align="center">
+  <img src="https://img.shields.io/badge/Go-%3E%3D1.21-00ADD8?style=flat-square&logo=go" alt="Go Version">
+  <img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Windows">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/Platform-Windows%20Only-blueviolet?style=flat-square" alt="Platform">
+</p>
 
-`gop` 是 OP (Operator & Open) 插件的 Go 语言封装库，专为 Windows 平台设计，提供屏幕读取、输入模拟、图像处理、OCR 文字识别等自动化功能。
+<p align="center">
+  <b>🚀 专为 Windows 平台设计的自动化操作库</b>
+</p>
 
-## 功能特性
+<p align="center">
+  <a href="#-功能特性">功能特性</a> •
+  <a href="#-快速开始">快速开始</a> •
+  <a href="#-安装">安装</a> •
+  <a href="#-api-文档">API 文档</a> •
+  <a href="#-使用示例">示例</a>
+</p>
 
-- **窗口操作**：查找窗口、获取窗口信息、移动窗口、设置窗口状态
-- **鼠标操作**：移动、点击、滚轮、拖拽等
-- **键盘操作**：按键、组合键、字符串输入
-- **图色操作**：截图、找图、找色、取色、比色
-- **OCR 识别**：文字识别、字库支持
-- **后台绑定**：支持后台窗口操作（DX 模式）
-- **内存操作**：进程内存读写
-- **系统命令**：剪贴板操作、运行程序等
+---
 
-## 安装
+## ✨ 功能特性
+
+| 功能模块 | 说明 | 状态 |
+|---------|------|------|
+| 🪟 **窗口操作** | 查找窗口、获取信息、移动、设置状态 | ✅ |
+| 🖱️ **鼠标操作** | 移动、点击、滚轮、拖拽 | ✅ |
+| ⌨️ **键盘操作** | 按键、组合键、字符串输入 | ✅ |
+| 🎨 **图色操作** | 截图、找图、找色、取色、比色 | ✅ |
+| 🔤 **OCR 识别** | 文字识别、字库支持 | ✅ |
+| 🎯 **后台绑定** | 支持后台窗口操作（DX 模式） | ✅ |
+| 💾 **内存操作** | 进程内存读写 | ✅ |
+| ⚙️ **系统命令** | 剪贴板操作、运行程序等 | ✅ |
+
+---
+
+## 📦 安装
 
 ```bash
-go get github.com/yourusername/gop
+go get github.com/yuan71058/OP-Go
 ```
 
-## 前置要求
+### 前置要求
 
 1. **Windows 操作系统**（仅支持 Windows）
 2. **OP 插件 DLL 文件**：
    - `op_x64.dll` 或 `op_x86.dll`（根据系统架构选择）
    - `tools_64.dll` 或 `tools.dll`（免注册方式需要）
 
-可以从 [OP 官方 GitHub](https://github.com/WallBreaker2/op) 下载插件文件。
+> 📥 从 [OP 官方 GitHub](https://github.com/WallBreaker2/op) 下载插件文件
 
-## 快速开始
+---
+
+## 🚀 快速开始
 
 ### 基础使用
 
@@ -41,45 +63,47 @@ package main
 import (
     "fmt"
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
     // 创建 OP 实例
-    op, err := gop.NewOP("C:\\path\\to\\op_x64.dll")
+    opInst, err := op.NewOP("C:\\path\\to\\op_x64.dll")
     if err != nil {
         log.Fatal(err)
     }
-    defer op.Release()
+    defer opInst.Release()
 
     // 获取版本号
-    version := op.Ver()
+    version := opInst.Ver()
     fmt.Printf("OP 版本: %s\n", version)
 
     // 设置图片路径
-    op.SetPath("C:\\images")
+    opInst.SetPath("C:\\images")
 
     // 查找窗口
-    hwnd := op.FindWindow("", "记事本")
+    hwnd := opInst.FindWindow("", "记事本")
     if hwnd != 0 {
         fmt.Printf("找到窗口，句柄: %d\n", hwnd)
     }
 }
 ```
 
-### 使用 Service 模式
+### Service 模式（推荐）
 
 ```go
 package main
 
 import (
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
     // 创建 Service
-    svc := gop.NewService("C:\\path\\to\\op_x64.dll")
+    svc := op.NewService("C:\\path\\to\\op_x64.dll")
 
     // 初始化
     if err := svc.Initialize(); err != nil {
@@ -103,9 +127,11 @@ func main() {
 }
 ```
 
-## API 文档
+---
 
-### 基础函数
+## 📚 API 文档
+
+### 🔧 基础函数
 
 | 函数 | 说明 |
 |------|------|
@@ -118,7 +144,7 @@ func main() {
 | `(*OP) SetShowErrorMsg(show int) int` | 设置是否显示错误弹窗 |
 | `(*OP) Sleep(ms int) int` | 休眠指定毫秒 |
 
-### 窗口操作
+### 🪟 窗口操作
 
 | 函数 | 说明 |
 |------|------|
@@ -132,7 +158,7 @@ func main() {
 | `(*OP) MoveWindow(hwnd, x, y int) int` | 移动窗口 |
 | `(*OP) EnumWindow(parent int, title, className string, filter int) string` | 枚举窗口 |
 
-### 后台绑定
+### 🎯 后台绑定
 
 | 函数 | 说明 |
 |------|------|
@@ -140,43 +166,36 @@ func main() {
 | `(*OP) UnBindWindow() int` | 解绑窗口 |
 | `(*OP) IsBind() int` | 判断是否已绑定 |
 
-绑定模式说明：
-- `display`: 显示模式 (`normal`, `gdi`, `gdi2`, `dx`, `dx2`)
-- `mouse`: 鼠标模式 (`normal`, `windows`, `dx`)
-- `keypad`: 键盘模式 (`normal`, `windows`, `dx`)
+**绑定模式说明**：
+- `display`: `normal`, `gdi`, `gdi2`, `dx`, `dx2`
+- `mouse`: `normal`, `windows`, `dx`
+- `keypad`: `normal`, `windows`, `dx`
 
-### 鼠标操作
+### 🖱️ 鼠标操作
 
 | 函数 | 说明 |
 |------|------|
 | `(*OP) MoveTo(x, y int) int` | 移动鼠标到指定位置 |
 | `(*OP) LeftClick() int` | 左键单击 |
 | `(*OP) LeftDoubleClick() int` | 左键双击 |
-| `(*OP) LeftDown() int` | 左键按下 |
-| `(*OP) LeftUp() int` | 左键弹起 |
+| `(*OP) LeftDown() / LeftUp() int` | 左键按下/弹起 |
 | `(*OP) RightClick() int` | 右键单击 |
-| `(*OP) RightDown() int` | 右键按下 |
-| `(*OP) RightUp() int` | 右键弹起 |
+| `(*OP) RightDown() / RightUp() int` | 右键按下/弹起 |
 | `(*OP) MiddleClick() int` | 中键单击 |
-| `(*OP) WheelUp() int` | 滚轮向上 |
-| `(*OP) WheelDown() int` | 滚轮向下 |
+| `(*OP) WheelUp() / WheelDown() int` | 滚轮向上/向下 |
 | `(*OP) GetCursorPos() (x, y int)` | 获取鼠标位置 |
-| `(*OP) SetMouseDelay(mouseType string, delay int) int` | 设置鼠标延迟 |
 
-### 键盘操作
+### ⌨️ 键盘操作
 
 | 函数 | 说明 |
 |------|------|
 | `(*OP) KeyPress(vkCode int) int` | 按下并弹起虚拟键码 |
 | `(*OP) KeyPressChar(keyStr string) int` | 按下并弹起字符键 |
-| `(*OP) KeyDown(vkCode int) int` | 按住虚拟键码 |
-| `(*OP) KeyDownChar(keyStr string) int` | 按住字符键 |
-| `(*OP) KeyUp(vkCode int) int` | 弹起虚拟键码 |
-| `(*OP) KeyUpChar(keyStr string) int` | 弹起字符键 |
+| `(*OP) KeyDown(vkCode int) / KeyUp(vkCode int) int` | 按住/弹起虚拟键码 |
+| `(*OP) KeyDownChar(keyStr string) / KeyUpChar(keyStr string) int` | 按住/弹起字符键 |
 | `(*OP) GetKeyState(vkCode int) int` | 获取按键状态 |
-| `(*OP) SetKeypadDelay(keypadType string, delay int) int` | 设置键盘延迟 |
 
-### 图色操作
+### 🎨 图色操作
 
 | 函数 | 说明 |
 |------|------|
@@ -184,13 +203,10 @@ func main() {
 | `(*OP) GetColor(x, y int) string` | 获取指定坐标颜色 |
 | `(*OP) CmpColor(x, y int, color string, sim float64) int` | 比较颜色 |
 | `(*OP) FindColor(x1, y1, x2, y2 int, color string, sim float64, dir int) (x, y int, found bool)` | 查找颜色 |
-| `(*OP) FindColorEx(x1, y1, x2, y2 int, color string, sim float64, dir int) (x, y int, found bool)` | 多点找色 |
 | `(*OP) FindPic(x1, y1, x2, y2 int, picName, deltaColor string, sim float64, dir int) (x, y int, found bool)` | 查找图片 |
 | `(*OP) FindPicEx(x1, y1, x2, y2 int, picName, deltaColor string, sim float64, dir int) string` | 查找所有图片 |
-| `(*OP) LoadPic(picName string) int` | 预加载图片 |
-| `(*OP) FreePic(picName string) int` | 释放图片 |
 
-### OCR 文字识别
+### 🔤 OCR 文字识别
 
 | 函数 | 说明 |
 |------|------|
@@ -199,21 +215,10 @@ func main() {
 | `(*OP) Ocr(x1, y1, x2, y2 int, colorFormat string, sim float64) string` | 识别文字 |
 | `(*OP) OcrAuto(x1, y1, x2, y2 int, sim float64) string` | 自动识别文字 |
 | `(*OP) FindStr(x1, y1, x2, y2 int, str, colorFormat string, sim float64) (ret, x, y int)` | 查找字符串 |
-| `(*OP) FindStrEx(x1, y1, x2, y2 int, str, colorFormat string, sim float64) string` | 查找所有字符串 |
 
-### 系统命令
+---
 
-| 函数 | 说明 |
-|------|------|
-| `(*OP) GetScreenWidth() int` | 获取屏幕宽度 |
-| `(*OP) GetScreenHeight() int` | 获取屏幕高度 |
-| `(*OP) GetClipboard() string` | 获取剪贴板内容 |
-| `(*OP) SetClipboard(str string) int` | 设置剪贴板内容 |
-| `(*OP) RunApp(appPath string, mode int) int` | 运行程序 |
-| `(*OP) WinExec(cmdLine string, cmdShow int) int` | 执行命令 |
-| `(*OP) Delay(ms int) int` | 延迟（不阻塞UI） |
-
-## 使用示例
+## 💡 使用示例
 
 ### 示例 1：窗口自动化
 
@@ -223,28 +228,29 @@ package main
 import (
     "fmt"
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
-    op, err := gop.NewOP("op_x64.dll")
+    opInst, err := op.NewOP("op_x64.dll")
     if err != nil {
         log.Fatal(err)
     }
-    defer op.Release()
+    defer opInst.Release()
 
     // 查找记事本窗口
-    hwnd := op.FindWindow("Notepad", "")
+    hwnd := opInst.FindWindow("Notepad", "")
     if hwnd == 0 {
         log.Fatal("未找到记事本窗口")
     }
 
     // 激活窗口
-    op.SetWindowState(hwnd, 1)
-    op.Sleep(500)
+    opInst.SetWindowState(hwnd, 1)
+    opInst.Sleep(500)
 
     // 输入文本
-    op.SendString(hwnd, "Hello, World!")
+    opInst.SendString(hwnd, "Hello, World!")
 }
 ```
 
@@ -256,27 +262,26 @@ package main
 import (
     "fmt"
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
-    op, err := gop.NewOP("op_x64.dll")
+    opInst, err := op.NewOP("op_x64.dll")
     if err != nil {
         log.Fatal(err)
     }
-    defer op.Release()
+    defer opInst.Release()
 
     // 设置图片路径
-    op.SetPath("C:\\images")
+    opInst.SetPath("C:\\images")
 
     // 查找图片
-    x, y, found := op.FindPic(0, 0, 1920, 1080, "button.bmp", "", 0.9, 0)
+    x, y, found := opInst.FindPic(0, 0, 1920, 1080, "button.bmp", "", 0.9, 0)
     if found {
         fmt.Printf("找到图片，位置: (%d, %d)\n", x, y)
-
-        // 移动鼠标并点击
-        op.MoveTo(x, y)
-        op.LeftClick()
+        opInst.MoveTo(x, y)
+        opInst.LeftClick()
     } else {
         fmt.Println("未找到图片")
     }
@@ -291,22 +296,23 @@ package main
 import (
     "fmt"
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
-    op, err := gop.NewOP("op_x64.dll")
+    opInst, err := op.NewOP("op_x64.dll")
     if err != nil {
         log.Fatal(err)
     }
-    defer op.Release()
+    defer opInst.Release()
 
     // 设置字库
-    op.SetDict(0, "C:\\dict\\standard.txt")
-    op.UseDict(0)
+    opInst.SetDict(0, "C:\\dict\\standard.txt")
+    opInst.UseDict(0)
 
     // 识别屏幕区域的文字
-    text := op.Ocr(100, 100, 500, 200, "FFFFFF-000000", 0.9)
+    text := opInst.Ocr(100, 100, 500, 200, "FFFFFF-000000", 0.9)
     fmt.Printf("识别结果: %s\n", text)
 }
 ```
@@ -319,39 +325,42 @@ package main
 import (
     "fmt"
     "log"
-    "github.com/yourusername/gop"
+    
+    op "github.com/yuan71058/OP-Go"
 )
 
 func main() {
-    op, err := gop.NewOP("op_x64.dll")
+    opInst, err := op.NewOP("op_x64.dll")
     if err != nil {
         log.Fatal(err)
     }
-    defer op.Release()
+    defer opInst.Release()
 
     // 查找游戏窗口
-    hwnd := op.FindWindow("", "游戏窗口")
+    hwnd := opInst.FindWindow("", "游戏窗口")
     if hwnd == 0 {
         log.Fatal("未找到窗口")
     }
 
     // 绑定窗口（后台模式）
-    ret := op.BindWindow(hwnd, "dx", "dx", "dx", 0)
+    ret := opInst.BindWindow(hwnd, "dx", "dx", "dx", 0)
     if ret == 0 {
         log.Fatal("绑定失败")
     }
-    defer op.UnBindWindow()
+    defer opInst.UnBindWindow()
 
     // 后台截图
-    op.Capture(0, 0, 800, 600, "screenshot.bmp")
+    opInst.Capture(0, 0, 800, 600, "screenshot.bmp")
 
     // 后台点击
-    op.MoveTo(400, 300)
-    op.LeftClick()
+    opInst.MoveTo(400, 300)
+    opInst.LeftClick()
 }
 ```
 
-## 虚拟键码常量
+---
+
+## ⌨️ 虚拟键码常量
 
 ```go
 const (
@@ -375,7 +384,9 @@ const (
 )
 ```
 
-## 注意事项
+---
+
+## ⚠️ 注意事项
 
 1. **仅支持 Windows 平台**：OP 插件是 Windows 专用插件
 2. **管理员权限**：某些功能可能需要管理员权限
@@ -383,16 +394,26 @@ const (
 4. **资源释放**：使用完毕后务必调用 `Release()` 释放资源
 5. **免注册方式**：将 `tools_64.dll` 或 `tools.dll` 放在 DLL 同目录或系统目录
 
-## 相关链接
+---
 
-- [OP 官方 GitHub](https://github.com/WallBreaker2/op)
-- [OP 官方文档](https://github.com/WallBreaker2/op/wiki)
-- [Go-OLE 库](https://github.com/go-ole/go-ole)
+## 🔗 相关链接
 
-## 许可证
+- 📘 [OP 官方 GitHub](https://github.com/WallBreaker2/op)
+- 📖 [OP 官方文档](https://github.com/WallBreaker2/op/wiki)
+- 🛠️ [Go-OLE 库](https://github.com/go-ole/go-ole)
 
-MIT License
+---
 
-## 贡献
+## 📄 许可证
+
+MIT License © 2024
+
+---
+
+## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+<p align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/yuan71058">yuan71058</a></sub>
+</p>
