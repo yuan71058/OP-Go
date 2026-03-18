@@ -125,8 +125,9 @@ func NewOP(dllPath string) (*OP, error) {
 				// 先尝试 setupA (ANSI 版本)
 				proc, err := dll.FindProc("setupA")
 				if err == nil {
-					p0, _ := syscall.BytePtrFromString(dllPath)
-					ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
+					// 将路径转换为字节数组（ANSI）
+					pathBytes := []byte(dllPath + "\x00")
+					ret, _, _ := proc.Call(uintptr(unsafe.Pointer(&pathBytes[0])))
 					if ret != 0 {
 						return newOPWithCOM()
 					}
