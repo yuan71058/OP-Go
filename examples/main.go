@@ -36,7 +36,7 @@ func exampleBasic() {
 	fmt.Println("========== 示例 1: 基础初始化 ==========")
 
 	// 创建 OP 实例
-	opInst, err := op.NewOP("C:\\path\\to\\op_x64.dll")
+	opInst, err := op.NewOP("E:\\SRC\\gop\\examples\\op_x64.dll")
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return

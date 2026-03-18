@@ -111,35 +111,44 @@ func NewOP(dllPath string) (*OP, error) {
 	// 获取 DLL 所在目录
 	dllDir := filepath.Dir(dllPath)
 
-	// 尝试免注册方式（使用 tools_64.dll 或 tools.dll）
-	if setupW.Find() == nil {
-		// tools DLL 已加载，尝试免注册方式
-		ok := SetupW(dllPath)
-		if ok {
-			return newOPWithCOM()
-		}
-	}
-
-	// 尝试从 DLL 目录加载 tools_64.dll
+	// 优先尝试从 DLL 目录加载 tools_64.dll
 	toolsPath := filepath.Join(dllDir, "tools_64.dll")
-	localToolsDLL := syscall.NewLazyDLL(toolsPath)
-	localSetupW := localToolsDLL.NewProc("setupW")
-	if localSetupW.Find() == nil {
-		p0, _ := syscall.UTF16PtrFromString(dllPath)
-		ret, _, _ := localSetupW.Call(uintptr(unsafe.Pointer(p0)))
-		if ret != 0 {
-			return newOPWithCOM()
+	if _, err := os.Stat(toolsPath); err == nil {
+		dll, err := syscall.LoadDLL(toolsPath)
+		if err == nil {
+			proc, err := dll.FindProc("setupW")
+			if err == nil {
+				p0, _ := syscall.UTF16PtrFromString(dllPath)
+				ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
+				if ret != 0 {
+					return newOPWithCOM()
+				}
+			}
+			dll.Release()
 		}
 	}
 
 	// 尝试从 DLL 目录加载 tools.dll
 	toolsPath = filepath.Join(dllDir, "tools.dll")
-	localToolsDLL = syscall.NewLazyDLL(toolsPath)
-	localSetupW = localToolsDLL.NewProc("setupW")
-	if localSetupW.Find() == nil {
-		p0, _ := syscall.UTF16PtrFromString(dllPath)
-		ret, _, _ := localSetupW.Call(uintptr(unsafe.Pointer(p0)))
-		if ret != 0 {
+	if _, err := os.Stat(toolsPath); err == nil {
+		dll, err := syscall.LoadDLL(toolsPath)
+		if err == nil {
+			proc, err := dll.FindProc("setupW")
+			if err == nil {
+				p0, _ := syscall.UTF16PtrFromString(dllPath)
+				ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
+				if ret != 0 {
+					return newOPWithCOM()
+				}
+			}
+			dll.Release()
+		}
+	}
+
+	// 尝试全局 tools DLL（如果已加载）
+	if setupW.Find() == nil {
+		ok := SetupW(dllPath)
+		if ok {
 			return newOPWithCOM()
 		}
 	}
