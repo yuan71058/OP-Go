@@ -8,6 +8,8 @@ import (
 	op "github.com/yuan71058/OP-Go"
 )
 
+const dllPath = "E:\\SRC\\gop\\examples\\op_x64.dll"
+
 func main() {
 	// 示例 1: 基础初始化
 	exampleBasic()
@@ -36,7 +38,7 @@ func exampleBasic() {
 	fmt.Println("========== 示例 1: 基础初始化 ==========")
 
 	// 创建 OP 实例
-	opInst, err := op.NewOP("E:\\SRC\\gop\\examples\\op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -64,7 +66,7 @@ func exampleBasic() {
 func exampleWindow() {
 	fmt.Println("========== 示例 2: 窗口操作 ==========")
 
-	opInst, err := op.NewOP("op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -104,7 +106,7 @@ func exampleWindow() {
 func exampleMouse() {
 	fmt.Println("========== 示例 3: 鼠标操作 ==========")
 
-	opInst, err := op.NewOP("op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -144,7 +146,7 @@ func exampleMouse() {
 func exampleKeyboard() {
 	fmt.Println("========== 示例 4: 键盘操作 ==========")
 
-	opInst, err := op.NewOP("op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -182,7 +184,7 @@ func exampleKeyboard() {
 func exampleImage() {
 	fmt.Println("========== 示例 5: 图色操作 ==========")
 
-	opInst, err := op.NewOP("op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -234,7 +236,7 @@ func exampleImage() {
 func exampleOCR() {
 	fmt.Println("========== 示例 6: OCR 文字识别 ==========")
 
-	opInst, err := op.NewOP("op_x64.dll")
+	opInst, err := op.NewOP(dllPath)
 	if err != nil {
 		log.Printf("创建 OP 实例失败: %v", err)
 		return
@@ -275,7 +277,7 @@ func exampleService() {
 	fmt.Println("========== 示例 7: 使用 Service 模式 ==========")
 
 	// 创建 Service
-	svc := op.NewService("op_x64.dll")
+	svc := op.NewService(dllPath)
 
 	// 初始化
 	if err := svc.Initialize(); err != nil {
