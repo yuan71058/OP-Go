@@ -113,7 +113,7 @@ func NewOP(dllPath string) (*OP, error) {
 
 	// 尝试加载的 tools DLL 列表（按优先级）
 	// tools_64.dll: 64位专用
-	// tools_86.dll: 32位专用  
+	// tools_86.dll: 32位专用
 	// tools.dll: 默认（通常为64位）
 	toolsNames := []string{"tools_64.dll", "tools_86.dll", "tools.dll"}
 
@@ -122,7 +122,17 @@ func NewOP(dllPath string) (*OP, error) {
 		if _, err := os.Stat(toolsPath); err == nil {
 			dll, err := syscall.LoadDLL(toolsPath)
 			if err == nil {
-				proc, err := dll.FindProc("setupW")
+				// 先尝试 setupA (ANSI 版本)
+				proc, err := dll.FindProc("setupA")
+				if err == nil {
+					p0, _ := syscall.BytePtrFromString(dllPath)
+					ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
+					if ret != 0 {
+						return newOPWithCOM()
+					}
+				}
+				// 再尝试 setupW (Unicode 版本)
+				proc, err = dll.FindProc("setupW")
 				if err == nil {
 					p0, _ := syscall.UTF16PtrFromString(dllPath)
 					ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
