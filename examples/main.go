@@ -73,6 +73,11 @@ func exampleWindow() {
 	}
 	defer opInst.Release()
 
+	// 先启动记事本
+	fmt.Println("启动记事本...")
+	opInst.WinExec("notepad", 1)
+	opInst.Sleep(1000) // 等待记事本启动
+
 	// 查找窗口
 	hwnd := opInst.FindWindow("Notepad", "")
 	if hwnd == 0 {
