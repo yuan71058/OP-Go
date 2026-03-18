@@ -8,7 +8,7 @@ import (
 	op "github.com/yuan71058/OP-Go"
 )
 
-const dllPath = "E:\\SRC\\gop\\examples\\op_x64.dll"
+const dllPath = "E:/SRC/gop/examples/op_x64.dll"
 
 func main() {
 	fmt.Println("========== OP-Go 64位示例 ==========")
