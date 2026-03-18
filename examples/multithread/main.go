@@ -51,15 +51,18 @@ func main() {
 	// 只取前 windowCount 个窗口
 	hwnds := hwndList[:windowCount]
 	editHwnds := make([]int, windowCount)
+	pids := make([]int, windowCount) // 保存进程ID用于关闭
 
-	// 查找编辑框句柄
-	fmt.Println("\n查找编辑框句柄...")
+	// 查找编辑框句柄并获取进程ID
+	fmt.Println("\n查找编辑框句柄和进程ID...")
 	for i := 0; i < windowCount; i++ {
 		editHwnds[i] = mainOP.FindWindowEx(hwnds[i], "Edit", "")
 		if editHwnds[i] == 0 {
 			log.Fatalf("未找到第 %d 个记事本的编辑框", i+1)
 		}
-		fmt.Printf("记事本 %d: 窗口句柄=%d, 编辑框句柄=%d\n", i+1, hwnds[i], editHwnds[i])
+		// 获取进程ID
+		pids[i] = mainOP.GetWindowProcessId(hwnds[i])
+		fmt.Printf("记事本 %d: 窗口句柄=%d, 编辑框句柄=%d, 进程ID=%d\n", i+1, hwnds[i], editHwnds[i], pids[i])
 	}
 
 	// 创建子对象并绑定窗口
@@ -92,11 +95,11 @@ func main() {
 		wg.Add(1)
 		go func(index int, char string, subOP *op.OP) {
 			defer wg.Done()
-			for j := 0; j < 200; j++ {
+			for j := 0; j < 100; j++ {
 				subOP.SendString(editHwnds[index], char)
 				subOP.Sleep(100)
 			}
-			fmt.Printf("窗口 %d 输入完成 (输入了200个'%s')\n", index+1, char)
+			fmt.Printf("窗口 %d 输入完成 (输入了100个'%s')\n", index+1, char)
 		}(i, inputChars[i], subOPs[i])
 	}
 
@@ -115,12 +118,12 @@ func main() {
 		fmt.Printf("窗口 %d 已解绑\n", i+1)
 	}
 
-	// 关闭所有记事本窗口（使用主窗口句柄，不是编辑框句柄）
+	// 关闭所有记事本进程（使用之前保存的进程ID）
 	fmt.Println("\n关闭记事本进程...")
 	for i := 0; i < windowCount; i++ {
 		// 直接结束进程，不会有弹窗
-		mainOP.KillProcess(hwnds[i])
-		fmt.Printf("窗口 %d 进程已结束\n", i+1)
+		mainOP.TerminateProcess(pids[i])
+		fmt.Printf("窗口 %d 进程已结束 (PID=%d)\n", i+1, pids[i])
 	}
 
 	// 释放子对象
