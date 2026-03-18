@@ -358,6 +358,94 @@ func main() {
 }
 ```
 
+### 示例 5：多线程操作（推荐）
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+    "os/exec"
+    "strconv"
+    "strings"
+    "sync"
+    "time"
+
+    op "github.com/yuan71058/OP-Go"
+)
+
+func main() {
+    // 创建 OP 主对象
+    mainOP, err := op.NewOP("op_x86.dll")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer mainOP.Release()
+
+    mainOP.SetShowErrorMsg(0)
+
+    // 启动 3 个记事本
+    const windowCount = 3
+    for i := 0; i < windowCount; i++ {
+        mainOP.WinExec("notepad", 1)
+        mainOP.Sleep(300)
+    }
+    mainOP.Sleep(1500)
+
+    // 枚举所有记事本窗口
+    hwndStr := mainOP.EnumWindow(0, "", "Notepad", 1+2+4+8+16)
+    hwndList := parseIntList(hwndStr)
+    hwnds := hwndList[:windowCount]
+
+    // 查找编辑框句柄并获取进程ID
+    editHwnds := make([]int, windowCount)
+    pids := make([]int, windowCount)
+    for i := 0; i < windowCount; i++ {
+        editHwnds[i] = mainOP.FindWindowEx(hwnds[i], "Edit", "")
+        pids[i] = mainOP.GetWindowProcessId(hwnds[i])
+    }
+
+    // 创建子对象并绑定窗口
+    subOPs := make([]*op.OP, windowCount)
+    for i := 0; i < windowCount; i++ {
+        subOPs[i], _ = op.NewOP("op_x86.dll")
+        subOPs[i].BindWindow(editHwnds[i], "gdi", "windows", "windows", 0)
+    }
+
+    // 智能排列窗口
+    arrangeWindows(mainOP, hwnds)
+
+    // 多线程输入文字
+    var wg sync.WaitGroup
+    inputChars := []string{"1", "2", "3"}
+
+    for i := 0; i < windowCount; i++ {
+        wg.Add(1)
+        go func(index int, char string, subOP *op.OP) {
+            defer wg.Done()
+            for j := 0; j < 100; j++ {
+                subOP.SendString(editHwnds[index], char)
+                subOP.Sleep(100)
+            }
+        }(i, inputChars[i], subOPs[i])
+    }
+    wg.Wait()
+
+    // 解绑窗口
+    for i := 0; i < windowCount; i++ {
+        subOPs[i].UnBindWindow()
+    }
+
+    // 结束进程
+    for i := 0; i < windowCount; i++ {
+        cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pids[i]))
+        cmd.Run()
+        subOPs[i].Release()
+    }
+}
+```
+
 ---
 
 ## ⌨️ 虚拟键码常量
