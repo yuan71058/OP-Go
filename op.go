@@ -111,37 +111,27 @@ func NewOP(dllPath string) (*OP, error) {
 	// 获取 DLL 所在目录
 	dllDir := filepath.Dir(dllPath)
 
-	// 优先尝试从 DLL 目录加载 tools_64.dll
-	toolsPath := filepath.Join(dllDir, "tools_64.dll")
-	if _, err := os.Stat(toolsPath); err == nil {
-		dll, err := syscall.LoadDLL(toolsPath)
-		if err == nil {
-			proc, err := dll.FindProc("setupW")
-			if err == nil {
-				p0, _ := syscall.UTF16PtrFromString(dllPath)
-				ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
-				if ret != 0 {
-					return newOPWithCOM()
-				}
-			}
-			dll.Release()
-		}
-	}
+	// 尝试加载的 tools DLL 列表（按优先级）
+	// tools_64.dll: 64位专用
+	// tools_86.dll: 32位专用  
+	// tools.dll: 默认（通常为64位）
+	toolsNames := []string{"tools_64.dll", "tools_86.dll", "tools.dll"}
 
-	// 尝试从 DLL 目录加载 tools.dll
-	toolsPath = filepath.Join(dllDir, "tools.dll")
-	if _, err := os.Stat(toolsPath); err == nil {
-		dll, err := syscall.LoadDLL(toolsPath)
-		if err == nil {
-			proc, err := dll.FindProc("setupW")
+	for _, toolsName := range toolsNames {
+		toolsPath := filepath.Join(dllDir, toolsName)
+		if _, err := os.Stat(toolsPath); err == nil {
+			dll, err := syscall.LoadDLL(toolsPath)
 			if err == nil {
-				p0, _ := syscall.UTF16PtrFromString(dllPath)
-				ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
-				if ret != 0 {
-					return newOPWithCOM()
+				proc, err := dll.FindProc("setupW")
+				if err == nil {
+					p0, _ := syscall.UTF16PtrFromString(dllPath)
+					ret, _, _ := proc.Call(uintptr(unsafe.Pointer(p0)))
+					if ret != 0 {
+						return newOPWithCOM()
+					}
 				}
+				dll.Release()
 			}
-			dll.Release()
 		}
 	}
 
