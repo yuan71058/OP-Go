@@ -1530,26 +1530,3 @@ func (o *OP) PostMessage(hwnd, msg, wParam, lParam int) int {
 	ret, _ := oleutil.CallMethod(o.object, "PostMessage", hwnd, msg, wParam, lParam)
 	return int(ret.Val)
 }
-
-// TerminateProcess 结束指定进程
-// 参数:
-//   - pid: 进程ID
-//
-// 返回值: 0表示失败，1表示成功
-func (o *OP) TerminateProcess(pid int) int {
-	ret, _ := oleutil.CallMethod(o.object, "TerminateProcess", pid)
-	return int(ret.Val)
-}
-
-// KillProcess 通过窗口句柄结束进程
-// 参数:
-//   - hwnd: 窗口句柄
-//
-// 返回值: 0表示失败，1表示成功
-func (o *OP) KillProcess(hwnd int) int {
-	pid := o.GetWindowProcessId(hwnd)
-	if pid == 0 {
-		return 0
-	}
-	return o.TerminateProcess(pid)
-}

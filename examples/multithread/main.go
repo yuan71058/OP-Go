@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
@@ -121,8 +122,9 @@ func main() {
 	// 关闭所有记事本进程（使用之前保存的进程ID）
 	fmt.Println("\n关闭记事本进程...")
 	for i := 0; i < windowCount; i++ {
-		// 直接结束进程，不会有弹窗
-		mainOP.TerminateProcess(pids[i])
+		// 使用 taskkill 命令结束进程，不会有弹窗
+		cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pids[i]))
+		cmd.Run()
 		fmt.Printf("窗口 %d 进程已结束 (PID=%d)\n", i+1, pids[i])
 	}
 
