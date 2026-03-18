@@ -108,13 +108,19 @@ func main() {
 	fmt.Println("延时5秒...")
 	mainOP.Sleep(5000)
 
-	// 解绑窗口并关闭
-	fmt.Println("\n解绑窗口并关闭记事本...")
+	// 先解绑所有窗口
+	fmt.Println("\n解绑窗口...")
 	for i := 0; i < windowCount; i++ {
 		subOPs[i].UnBindWindow()
-		// 关闭窗口
-		mainOP.SendMessage(hwnds[i], 0x0010, 0, 0) // WM_CLOSE = 0x0010
-		fmt.Printf("窗口 %d 已解绑并关闭\n", i+1)
+		fmt.Printf("窗口 %d 已解绑\n", i+1)
+	}
+
+	// 关闭所有记事本窗口（使用主窗口句柄，不是编辑框句柄）
+	fmt.Println("\n关闭记事本窗口...")
+	for i := 0; i < windowCount; i++ {
+		// SetWindowState(hwnd, 0) = 关闭窗口
+		mainOP.SetWindowState(hwnds[i], 0)
+		fmt.Printf("窗口 %d 已关闭\n", i+1)
 	}
 
 	// 释放子对象
