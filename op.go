@@ -1504,3 +1504,29 @@ func (o *OP) Delays(msMin, msMax int) int {
 	ret, _ := oleutil.CallMethod(o.object, "Delays", msMin, msMax)
 	return int(ret.Val)
 }
+
+// SendMessage 向窗口发送消息
+// 参数:
+//   - hwnd: 窗口句柄
+//   - msg: 消息类型
+//   - wParam: 消息参数1
+//   - lParam: 消息参数2
+//
+// 返回值: 消息处理结果
+func (o *OP) SendMessage(hwnd, msg, wParam, lParam int) int {
+	ret, _ := oleutil.CallMethod(o.object, "SendMessage", hwnd, msg, wParam, lParam)
+	return int(ret.Val)
+}
+
+// PostMessage 向窗口发送消息（异步）
+// 参数:
+//   - hwnd: 窗口句柄
+//   - msg: 消息类型
+//   - wParam: 消息参数1
+//   - lParam: 消息参数2
+//
+// 返回值: 0表示失败，非0表示成功
+func (o *OP) PostMessage(hwnd, msg, wParam, lParam int) int {
+	ret, _ := oleutil.CallMethod(o.object, "PostMessage", hwnd, msg, wParam, lParam)
+	return int(ret.Val)
+}
