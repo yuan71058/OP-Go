@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -25,33 +27,40 @@ func main() {
 	mainOP.SetShowErrorMsg(0)
 	fmt.Printf("OP 插件版本: %s\n\n", mainOP.Ver())
 
-	// 启动 3 个记事本并获取窗口句柄
+	// 启动 3 个记事本
 	const windowCount = 3
-	hwnds := make([]int, windowCount)
-	editHwnds := make([]int, windowCount)
-
 	fmt.Println("启动记事本...")
 	for i := 0; i < windowCount; i++ {
 		mainOP.WinExec("notepad", 1)
-		mainOP.Sleep(500)
+		mainOP.Sleep(300)
 	}
 
-	mainOP.Sleep(1000) // 等待所有记事本启动完成
+	// 等待所有记事本启动完成
+	mainOP.Sleep(1500)
 
-	// 查找所有记事本窗口
+	// 枚举所有记事本窗口
+	fmt.Println("\n枚举记事本窗口...")
+	hwndStr := mainOP.EnumWindow(0, "", "Notepad", 1+2+4+8+16) // 过滤所有窗口
+	fmt.Printf("枚举结果: %s\n", hwndStr)
+
+	hwndList := parseIntList(hwndStr)
+	if len(hwndList) < windowCount {
+		log.Fatalf("找到的记事本窗口数量不足: 期望 %d, 实际 %d", windowCount, len(hwndList))
+	}
+
+	// 只取前 windowCount 个窗口
+	hwnds := hwndList[:windowCount]
+	editHwnds := make([]int, windowCount)
+
+	// 查找编辑框句柄
+	fmt.Println("\n查找编辑框句柄...")
 	for i := 0; i < windowCount; i++ {
-		hwnds[i] = mainOP.FindWindow("Notepad", "")
-		if hwnds[i] == 0 {
-			log.Fatalf("未找到第 %d 个记事本窗口", i+1)
-		}
-		// 查找编辑框控件 (Edit 类)
 		editHwnds[i] = mainOP.FindWindowEx(hwnds[i], "Edit", "")
 		if editHwnds[i] == 0 {
 			log.Fatalf("未找到第 %d 个记事本的编辑框", i+1)
 		}
 		fmt.Printf("记事本 %d: 窗口句柄=%d, 编辑框句柄=%d\n", i+1, hwnds[i], editHwnds[i])
 	}
-	fmt.Println()
 
 	// 创建子对象并绑定窗口
 	subOPs := make([]*op.OP, windowCount)
@@ -67,13 +76,16 @@ func main() {
 		}
 		fmt.Printf("子对象 %d 绑定成功\n", i+1)
 	}
-	fmt.Println()
+
+	// 智能排列窗口
+	fmt.Println("\n智能排列窗口...")
+	arrangeWindows(mainOP, hwnds)
 
 	// 多线程输入文字
 	var wg sync.WaitGroup
 	inputChars := []string{"1", "2", "3"}
 
-	fmt.Println("开始多线程输入...")
+	fmt.Println("\n开始多线程输入...")
 	startTime := time.Now()
 
 	for i := 0; i < windowCount; i++ {
@@ -111,4 +123,53 @@ func main() {
 	}
 
 	fmt.Println("\n资源释放完成，示例结束")
+}
+
+// parseIntList 解析枚举窗口返回的句柄字符串
+func parseIntList(s string) []int {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	result := make([]int, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		val, err := strconv.Atoi(p)
+		if err == nil {
+			result = append(result, val)
+		}
+	}
+	return result
+}
+
+// arrangeWindows 智能排列窗口（横向排列，不遮挡）
+func arrangeWindows(op *op.OP, hwnds []int) {
+	count := len(hwnds)
+	if count == 0 {
+		return
+	}
+
+	// 获取屏幕尺寸
+	screenWidth := 1920
+	screenHeight := 1080
+
+	// 计算每个窗口的大小和位置
+	windowWidth := screenWidth / count
+	windowHeight := screenHeight - 100 // 留出底部空间
+	startY := 50                       // 顶部留出空间
+
+	for i, hwnd := range hwnds {
+		x := i * windowWidth
+		y := startY
+
+		// 设置窗口大小
+		op.SetWindowSize(hwnd, windowWidth-10, windowHeight)
+		// 移动窗口位置
+		op.MoveWindow(hwnd, x, y)
+
+		fmt.Printf("窗口 %d: 位置(%d, %d), 大小(%d x %d)\n", i+1, x, y, windowWidth-10, windowHeight)
+	}
 }
