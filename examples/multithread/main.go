@@ -116,11 +116,11 @@ func main() {
 	}
 
 	// 关闭所有记事本窗口（使用主窗口句柄，不是编辑框句柄）
-	fmt.Println("\n关闭记事本窗口...")
+	fmt.Println("\n关闭记事本进程...")
 	for i := 0; i < windowCount; i++ {
-		// SetWindowState(hwnd, 0) = 关闭窗口
-		mainOP.SetWindowState(hwnds[i], 0)
-		fmt.Printf("窗口 %d 已关闭\n", i+1)
+		// 直接结束进程，不会有弹窗
+		mainOP.KillProcess(hwnds[i])
+		fmt.Printf("窗口 %d 进程已结束\n", i+1)
 	}
 
 	// 释放子对象
