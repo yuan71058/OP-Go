@@ -9,7 +9,7 @@ import (
 	op "github.com/yuan71058/OP-Go"
 )
 
-const dllPath = `E:\SRC\gop\examples\op_x86.dll`
+const dllPath = `op_x86.dll`
 
 func main() {
 	fmt.Println("========== 多线程记事本操作示例 ==========")
